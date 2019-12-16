@@ -11,7 +11,6 @@ def twoParamDest(dic):
     global POSITION_MODE
     global IMMEDIATE_MODE
     ret = {}
-    # print(dic)
     if dic['first'] == POSITION_MODE:
         ret['one'] = int(dic['data'][dic['arrPos'] + 1])
     else:
@@ -24,9 +23,33 @@ def twoParamDest(dic):
         ret['destination'] = int(dic['data'][dic['arrPos'] + 3])
     else:
         ret['destination'] = dic['arrPos'] + 3
-    # print(ret)
     return ret
 
+def codeOne(pa):
+    par = twoParamDest(pa)
+    pa['data'][par['destination']] = add(pa['data'][par['one']], pa['data'][par['two']])
+    return pa['arrPos'] + 4
+
+def codeTwo(pa):
+    par = twoParamDest(pa)
+    pa['data'][par['destination']] = mutl(pa['data'][par['one']], pa['data'][par['two']])
+    return pa['arrPos'] + 4
+
+def codeThree(pa):
+    if pa['first'] == POSITION_MODE:
+        destination = int(pa['data'][pa['arrPos'] + 1])
+    else:
+        destination = pa['arrPos'] + 1
+    pa['data'][destination] = int(input("Input > "))
+    return pa['arrPos'] + 2
+
+def codeFour(pa):
+    if pa['first'] == POSITION_MODE:
+        pos = int(pa['data'][pa['arrPos'] + 1])
+    else:
+        pos = pa['arrPos'] + 1
+    print(pa['data'][pos])
+    return pa['arrPos'] + 2
 
 def main():
     global POSITION_MODE
@@ -37,7 +60,6 @@ def main():
     arrPos = 0
     while data[arrPos] != 99:
         posVal = str(data[arrPos])[::-1]
-
         opcode = int((posVal[0:2])[::-1])
         firstParamStatus = POSITION_MODE
         secondParamStatus = POSITION_MODE
@@ -49,45 +71,21 @@ def main():
         if len(posVal) >= 5:
             thirdParamStatus = int(posVal[4])
 
-
-        if opcode == 1: # add
-            params = {
+        params = {
                 'arrPos':arrPos,
                 'first':firstParamStatus,
                 'second':secondParamStatus,
                 'third':thirdParamStatus,
                 'data':data
             }
-            par = twoParamDest(params)
-            # print("Add", par['one'], data[par['one']], par['two'],data[par['two']], ">", data[par['one']] + data[par['two']], "to" , par['destination'])
-            data[par['destination']] = \
-                add(data[par['one']], \
-                data[par['two']])
-            arrPos += 4
-
+        if opcode == 1: # add
+            arrPos = codeOne(params)
         elif opcode == 2: # multi
-            par = twoParamDest({
-                'data':data,
-                'arrPos':arrPos,
-                'first':firstParamStatus,
-                'second':secondParamStatus,
-                'third':thirdParamStatus
-            })
-            data[par['destination']] = mutl(data[par['one']], data[par['two']])
-            arrPos += 4
+            arrPos = codeTwo(params)
         elif opcode == 3: # input to destination
-            if firstParamStatus == POSITION_MODE:
-                destination = int(data[arrPos + 1])
-            else:
-                destination = arrPos + 1
-            data[destination] = int(input("Input > "))
-            arrPos += 2
+            arrPos = codeThree(params)
         elif opcode == 4: # output value
-            if firstParamStatus == POSITION_MODE:
-                pos = int(data[arrPos + 1])
-            else:
-                pos = arrPos + 1
-            print("Output>",data[pos])
-            arrPos += 2
+            arrPos = codeFour(params)
+
 if __name__ == "__main__":
     main()
