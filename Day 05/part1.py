@@ -1,35 +1,93 @@
+POSITION_MODE = 0
+IMMEDIATE_MODE = 1
+
 def add(one, two):
     return one + two
 
 def mutl(one, two):
     return one * two
 
+def twoParamDest(dic):
+    global POSITION_MODE
+    global IMMEDIATE_MODE
+    ret = {}
+    # print(dic)
+    if dic['first'] == POSITION_MODE:
+        ret['one'] = int(dic['data'][dic['arrPos'] + 1])
+    else:
+        ret['one'] = dic['arrPos'] + 1
+    if dic['second'] == POSITION_MODE:
+        ret['two'] = int(dic['data'][dic['arrPos'] + 2])
+    else:
+        ret['two'] = dic['arrPos'] + 2
+    if dic['third'] == POSITION_MODE:
+        ret['destination'] = int(dic['data'][dic['arrPos'] + 3])
+    else:
+        ret['destination'] = dic['arrPos'] + 3
+    # print(ret)
+    return ret
+
+
 def main():
-    bkpData = [1,12,2,3,1,1,2,3,1,3,4,3,1,5,0,3,2,10,1,19,1,5,19,23,1,23,5,27,2,27,10,31,1,5,31,35,2,35,6,39,1,6,39,43,2,13,43,47,2,9,47,51,1,6,51,55,1,55,9,59,2,6,59,63,1,5,63,67,2,67,13,71,1,9,71,75,1,75,9,79,2,79,10,83,1,6,83,87,1,5,87,91,1,6,91,95,1,95,13,99,1,10,99,103,2,6,103,107,1,107,5,111,1,111,13,115,1,115,13,119,1,13,119,123,2,123,13,127,1,127,6,131,1,131,9,135,1,5,135,139,2,139,6,143,2,6,143,147,1,5,147,151,1,151,2,155,1,9,155,0,99,2,14,0,0]
-    bkpData = [3,0,4,0,99]
+    global POSITION_MODE
+    global IMMEDIATE_MODE
+    bkpData = [3,225,1,225,6,6,1100,1,238,225,104,0,1102,46,47,225,2,122,130,224,101,-1998,224,224,4,224,1002,223,8,223,1001,224,6,224,1,224,223,223,1102,61,51,225,102,32,92,224,101,-800,224,224,4,224,1002,223,8,223,1001,224,1,224,1,223,224,223,1101,61,64,225,1001,118,25,224,101,-106,224,224,4,224,1002,223,8,223,101,1,224,224,1,224,223,223,1102,33,25,225,1102,73,67,224,101,-4891,224,224,4,224,1002,223,8,223,1001,224,4,224,1,224,223,223,1101,14,81,225,1102,17,74,225,1102,52,67,225,1101,94,27,225,101,71,39,224,101,-132,224,224,4,224,1002,223,8,223,101,5,224,224,1,224,223,223,1002,14,38,224,101,-1786,224,224,4,224,102,8,223,223,1001,224,2,224,1,223,224,223,1,65,126,224,1001,224,-128,224,4,224,1002,223,8,223,101,6,224,224,1,224,223,223,1101,81,40,224,1001,224,-121,224,4,224,102,8,223,223,101,4,224,224,1,223,224,223,4,223,99,0,0,0,677,0,0,0,0,0,0,0,0,0,0,0,1105,0,99999,1105,227,247,1105,1,99999,1005,227,99999,1005,0,256,1105,1,99999,1106,227,99999,1106,0,265,1105,1,99999,1006,0,99999,1006,227,274,1105,1,99999,1105,1,280,1105,1,99999,1,225,225,225,1101,294,0,0,105,1,0,1105,1,99999,1106,0,300,1105,1,99999,1,225,225,225,1101,314,0,0,106,0,0,1105,1,99999,1008,677,226,224,1002,223,2,223,1005,224,329,1001,223,1,223,107,677,677,224,102,2,223,223,1005,224,344,101,1,223,223,1107,677,677,224,102,2,223,223,1005,224,359,1001,223,1,223,1108,226,226,224,1002,223,2,223,1006,224,374,101,1,223,223,107,226,226,224,1002,223,2,223,1005,224,389,1001,223,1,223,108,226,226,224,1002,223,2,223,1005,224,404,1001,223,1,223,1008,677,677,224,1002,223,2,223,1006,224,419,1001,223,1,223,1107,677,226,224,102,2,223,223,1005,224,434,1001,223,1,223,108,226,677,224,102,2,223,223,1006,224,449,1001,223,1,223,8,677,226,224,102,2,223,223,1006,224,464,1001,223,1,223,1007,677,226,224,1002,223,2,223,1006,224,479,1001,223,1,223,1007,677,677,224,1002,223,2,223,1005,224,494,1001,223,1,223,1107,226,677,224,1002,223,2,223,1006,224,509,101,1,223,223,1108,226,677,224,102,2,223,223,1005,224,524,1001,223,1,223,7,226,226,224,102,2,223,223,1005,224,539,1001,223,1,223,8,677,677,224,1002,223,2,223,1005,224,554,101,1,223,223,107,677,226,224,102,2,223,223,1006,224,569,1001,223,1,223,7,226,677,224,1002,223,2,223,1005,224,584,1001,223,1,223,1008,226,226,224,1002,223,2,223,1006,224,599,101,1,223,223,1108,677,226,224,102,2,223,223,1006,224,614,101,1,223,223,7,677,226,224,102,2,223,223,1005,224,629,1001,223,1,223,8,226,677,224,1002,223,2,223,1006,224,644,101,1,223,223,1007,226,226,224,102,2,223,223,1005,224,659,101,1,223,223,108,677,677,224,1002,223,2,223,1006,224,674,1001,223,1,223,4,223,99,226]
+    # bkpData = [1003,1,1004,1,99]
     data = bkpData
     arrPos = 0
     while data[arrPos] != 99:
-        print(data[arrPos], arrPos, data)
-        if data[arrPos] == 1 or data[arrPos] == 2:
-            param1 = data[arrPos + 1]
-            param1Value = data[data[arrPos + 1]]
-            param2 = data[arrPos + 2]
-            param2Value = data[data[arrPos + 2]]
-            destination = data[arrPos + 3]
-        print(int(str(arrPos)[-3:-1]))
-        if data[int(str(arrPos)[-2:-1])] == 1: # add
-            data[destination] = add(param1Value, param2Value)
-            arrPos += 4
-        elif data[int(str(arrPos)[-1])] == 2: # multi
-            data[destination] = mutl(param1Value, param2Value)
-            arrPos += 4
-        elif data[int(str(arrPos)[-1])] == 3: # input to destination
-            data[data[arrPos + 1]] = int(input("Input"))
-            arrPos += 2
-        elif data[int(str(arrPos)[-1])] == 4: # output value
-            print(data[data[arrPos + 1]])
-            arrPos += 2
+        posVal = str(data[arrPos])[::-1]
 
+        opcode = int((posVal[0:2])[::-1])
+        firstParamStatus = POSITION_MODE
+        secondParamStatus = POSITION_MODE
+        thirdParamStatus = POSITION_MODE
+        if len(posVal) >= 3:
+            firstParamStatus = int(posVal[2])
+        if len(posVal) >= 4:
+            secondParamStatus = int(posVal[3])
+        if len(posVal) >= 5:
+            thirdParamStatus = int(posVal[4])
+
+
+        if opcode == 1: # add
+            params = {
+                'arrPos':arrPos,
+                'first':firstParamStatus,
+                'second':secondParamStatus,
+                'third':thirdParamStatus,
+                'data':data
+            }
+            par = twoParamDest(params)
+            # print("Add", par['one'], data[par['one']], par['two'],data[par['two']], ">", data[par['one']] + data[par['two']], "to" , par['destination'])
+            data[par['destination']] = \
+                add(data[par['one']], \
+                data[par['two']])
+            arrPos += 4
+
+        elif opcode == 2: # multi
+            par = twoParamDest({
+                'data':data,
+                'arrPos':arrPos,
+                'first':firstParamStatus,
+                'second':secondParamStatus,
+                'third':thirdParamStatus
+            })
+            data[par['destination']] = mutl(data[par['one']], data[par['two']])
+            arrPos += 4
+        elif opcode == 3: # input to destination
+            if firstParamStatus == POSITION_MODE:
+                destination = int(data[arrPos + 1])
+            else:
+                destination = arrPos + 1
+            data[destination] = int(input("Input > "))
+            arrPos += 2
+        elif opcode == 4: # output value
+            if firstParamStatus == POSITION_MODE:
+                pos = int(data[arrPos + 1])
+            else:
+                pos = arrPos + 1
+            print("Output>",data[pos])
+            arrPos += 2
 if __name__ == "__main__":
     main()
