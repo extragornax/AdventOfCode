@@ -23,7 +23,6 @@ def two():
                 tree += 1
             sidePos += s['r']
             line += 1
-        print(s['d'], s['r'], tree, line)
         if tree != 0:
             trees = trees * tree
     print(trees)
