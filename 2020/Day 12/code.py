@@ -69,8 +69,7 @@ def one():
                 boat['x'] += amount
         else:
             print("Unknown letter", letter)
-        print(letter, amount, boat, getDirection(direction))
-    # print('x', boat['x'], 'y', boat['y'], abs(boat['x']) + abs(boat['y']))
+    print(abs(boat['x']) + abs(boat['y']))
         
 def two():
     file = open("test.txt")
@@ -98,37 +97,11 @@ def two():
         elif letter == 'W':
             waypoint['x'] += amount
         elif letter == 'R':
-            turn = amount / 90
-            direction = retDirection(direction, letter, turn)
-            for i in range(int(turn)):
-                bkpX = waypoint['x']
-                bkpY = waypoint['y']
-                if bkpX < 0 and bkpY >= 0:
-                    bkpY = -bkpY
-                elif bkpX < 0 and bkpY < 0:
-                    bkpX = - bkpX
-                elif bkpX >= 0 and bkpY < 0:
-                    bkpY = -bkpY
-                elif bkpX >= 0 and bkpY >= 0:
-                    bkpX = -bkpX
-                waypoint['y'] = bkpX
-                waypoint['x'] = bkpY
+            for i in range(int(amount / 90)):
+                waypoint['x'], waypoint['y'] = waypoint['y'], -waypoint['x']
         elif letter == 'L':
-            turn = amount / 90
-            direction = retDirection(direction, letter, turn)
-            for i in range(int(turn)):
-                bkpX = waypoint['x']
-                bkpY = waypoint['y']
-                if bkpX < 0 and bkpY >= 0:
-                    bkpX = -bkpX
-                elif bkpX < 0 and bkpY < 0:
-                    bkpY = -bkpY
-                elif bkpX >= 0 and bkpY < 0:
-                    bkpX = -bkpX
-                elif bkpX >= 0 and bkpY >= 0:
-                    bkpY = -bkpY
-                waypoint['y'] = bkpX
-                waypoint['x'] = bkpY
+            for i in range(int(value / 90)):  # switch for each 90° turn
+                waypoint['x'], waypoint['y'] = -waypoint['y'], waypoint['x']
         elif letter == 'F':
             boat['x'] += waypoint['x'] * amount
             boat['y'] += waypoint['y'] * amount
@@ -138,7 +111,7 @@ def two():
     print('x', boat['x'], 'y', boat['y'], abs(boat['x']) + abs(boat['y']))
     # print(abs(boat['x']) + abs(boat['y']))
 
-# print("one")
-# one()
+print("one")
+one()
 print("two")
 two()
