@@ -8,9 +8,10 @@ fn is_number(c: char) -> bool {
     }
 }
 
-fn retrieve_number_from_pos(x: i64, y: i64, all: &Vec<Vec<char>>) -> i64 {
+fn retrieve_number_from_pos(x: i64, y: i64, all: &Vec<Vec<char>>) -> (Vec<Vec<char>>, i64) {
+    let mut all = all.clone();
     if x < 0 || y < 0 {
-        return 0;
+        return (all, 0);
     }
     let up_down = x;
     let mut side_to_side = y;
@@ -29,18 +30,21 @@ fn retrieve_number_from_pos(x: i64, y: i64, all: &Vec<Vec<char>>) -> i64 {
     side_to_side += 1;
     let mut number_vec = vec![];
     if side_to_side < 0 || side_to_side >= all[up_down as usize].len() as i64 {
-        return 0;
+        return (all, 0);
     }
     println!("Updown {:?} Sidetoside {:?} -> len {}", up_down, side_to_side, all[up_down as usize].len() as i64);
     while (side_to_side < all[up_down as usize].len() as i64) && is_number(all[up_down as usize][side_to_side as usize]) {
         number_vec.push(all[up_down as usize][side_to_side as usize]);
+        all[up_down as usize][side_to_side as usize] = '.';
         side_to_side += 1;
     }
-    number_vec.clone().iter().collect::<String>().parse::<i64>().unwrap_or(0)
+    (all, number_vec.clone().iter().collect::<String>().parse::<i64>().unwrap_or(0))
 }
 
 /*
-    539219 Too low
+    539219 Too low (dedup)
+    540212 Good
+    911882 Too high (not dedup)
  */
 fn part_01() -> std::io::Result<()> {
     let file = File::open("input.txt")?;
@@ -51,6 +55,9 @@ fn part_01() -> std::io::Result<()> {
     let mut all: Vec<Vec<char>> = vec![];
     for s in split {
         let mut tmp: Vec<char> = vec![];
+        if s.len() == 0 {
+            continue;
+        }
         for c in s.chars() {
             tmp.push(c);
         }
@@ -77,6 +84,8 @@ fn part_01() -> std::io::Result<()> {
         }
     }
 
+    println!("Symbols {:?}", symbols);
+
     #[derive(Debug)]
     struct SymbolsNums {
         symbol: char,
@@ -91,39 +100,57 @@ fn part_01() -> std::io::Result<()> {
             symbol: s.symbol,
             numbers: vec![],
         };
-        if is_number(all[(x - 1) as usize][(y - 1) as usize]) {
-            symbol_data.numbers.push(retrieve_number_from_pos(x - 1, y - 1, &all));
+        if x > 0 && y > 0 && is_number(all[(x - 1) as usize][(y - 1) as usize]) {
+            let _t = retrieve_number_from_pos(x - 1, y - 1, &all);
+            all = _t.0;
+            symbol_data.numbers.push(_t.1);
         }
 
-        if is_number(all[(x - 1) as usize][(y) as usize]) {
-            symbol_data.numbers.push(retrieve_number_from_pos(x - 1, y, &all));
+        if x > 0 && is_number(all[(x - 1) as usize][(y) as usize]) {
+            let _t = retrieve_number_from_pos(x - 1, y, &all);
+            all = _t.0;
+            symbol_data.numbers.push(_t.1);
         }
 
-        if is_number(all[(x - 1) as usize][(y + 1) as usize]) {
-            symbol_data.numbers.push(retrieve_number_from_pos(x - 1, y + 1, &all));
+        if x > 0 && y < all[x as usize].len() as i64 && is_number(all[(x - 1) as usize][(y + 1) as usize]) {
+            let _t = retrieve_number_from_pos(x - 1, y + 1, &all);
+            all = _t.0;
+            symbol_data.numbers.push(_t.1);
         }
 
-        if is_number(all[(x) as usize][(y - 1) as usize]) {
-            symbol_data.numbers.push(retrieve_number_from_pos(x, y - 1, &all));
+        if y > 0 && is_number(all[(x) as usize][(y - 1) as usize]) {
+            let _t = retrieve_number_from_pos(x, y - 1, &all);
+            all = _t.0;
+            symbol_data.numbers.push(_t.1);
         }
 
-        if is_number(all[(x) as usize][(y + 1) as usize]) {
-            symbol_data.numbers.push(retrieve_number_from_pos(x, y + 1, &all));
+        if (y + 1) < all[x as usize].len() as i64 && is_number(all[(x) as usize][(y + 1) as usize]) {
+            let _t = retrieve_number_from_pos(x, y + 1, &all);
+            all = _t.0;
+            symbol_data.numbers.push(_t.1);
         }
 
-        if is_number(all[(x + 1) as usize][(y - 1) as usize]) {
-            symbol_data.numbers.push(retrieve_number_from_pos(x + 1, y - 1, &all));
+        if (x + 1) < all.len() as i64 && y > 0 && is_number(all[(x + 1) as usize][(y - 1) as usize]) {
+            let _t = retrieve_number_from_pos(x + 1, y - 1, &all);
+            all = _t.0;
+            symbol_data.numbers.push(_t.1);
         }
 
-        if is_number(all[(x + 1) as usize][(y) as usize]) {
-            symbol_data.numbers.push(retrieve_number_from_pos(x + 1, y, &all));
+        if (x + 1) < all.len() as i64 && is_number(all[(x + 1) as usize][(y) as usize]) {
+            let _t = retrieve_number_from_pos(x + 1, y, &all);
+            all = _t.0;
+            symbol_data.numbers.push(_t.1);
         }
 
-        if is_number(all[(x + 1) as usize][(y + 1) as usize]) {
-            symbol_data.numbers.push(retrieve_number_from_pos(x + 1, y + 1, &all));
+        if (x + 1) < all.len() as i64 && y + 1 < all[x as usize].len() as i64 && is_number(all[(x + 1) as usize][(y + 1) as usize]) {
+            let _t = retrieve_number_from_pos(x + 1, y + 1, &all);
+            all = _t.0;
+            symbol_data.numbers.push(_t.1);
         }
 
-        symbol_data.numbers.dedup();
+        println!("Symbol data {:?}", symbol_data);
+
+        // symbol_data.numbers.dedup();
 
         all_numbers_for_symbol.push(symbol_data);
     }
