@@ -72,6 +72,70 @@ fn replace_if_starts_with(tochange: String) -> String {
     53815 -> Incorrect
  */
 // Version couting eightwo as 2 (last digit)
+// fn part_02() -> std::io::Result<()> {
+//     let file = File::open("input.txt")?;
+//     let mut buf_reader = BufReader::new(file);
+//     let mut contents = String::new();
+//     buf_reader.read_to_string(&mut contents)?;
+//
+//     let mut numbers: Vec<i64> = vec![];
+//     let split = contents.split("\n");
+//
+//     for line in split {
+//         if line.len() == 0 {
+//             continue;
+//         }
+//
+//         let line_bkp = line.clone();
+//
+//         let mut tmp_line = line.clone().to_string();
+//         let mut number_lst: Vec<char> = vec![];
+//
+//         let line_len = tmp_line.len() - 1;
+//
+//         for ind in 0..line_len {
+//             let _t: Option<(String, String)> = check_starts_with_number(tmp_line.clone());
+//             if _t.is_some() {
+//                 number_lst.push(_t.unwrap().1.chars().next().unwrap());
+//                 tmp_line.remove(0);
+//             } else {
+//                 let pop = tmp_line.remove(0);
+//                 if is_num(pop as u8) {
+//                     number_lst.push(pop);
+//                 }
+//             }
+//         }
+//
+//         let numtoparse = match number_lst.len() {
+//             0 => { String::from("0") }
+//             _ => {
+//                 let one = number_lst.remove(0);
+//                 let mut two = number_lst.pop();
+//                 if two.is_none() {
+//                     two = Some(one);
+//                 }
+//                 format!("{}{}", one, two.unwrap())
+//             }
+//         };
+//
+//         println!("from {:?} to {:?}", line_bkp, numtoparse);
+//         let num = numtoparse.clone().parse::<i64>().unwrap();
+//         numbers.push(num);
+//     }
+//     let total = numbers.iter().sum::<i64>();
+//     let toolow = 55189;
+//
+//     println!("PART 2: Answer {:?} -> is high enough <{}> ({})", total, total > toolow, toolow);
+//     Ok(())
+// }
+
+
+/*
+    55189 -> Too low
+    54458 -> Too low
+    53815 -> Incorrect
+    8448139 -> Incorrect
+ */
 fn part_02() -> std::io::Result<()> {
     let file = File::open("input.txt")?;
     let mut buf_reader = BufReader::new(file);
@@ -80,52 +144,57 @@ fn part_02() -> std::io::Result<()> {
 
     let mut numbers: Vec<i64> = vec![];
     let split = contents.split("\n");
+    let mut sum = 0;
 
     for line in split {
-        if line.len() == 0 {
-            continue;
-        }
+        let mut digits = String::new();
+        let mut is_digit = false;
 
-        let line_bkp = line.clone();
-
-        let mut tmp_line = line.clone().to_string();
-        let mut number_lst: Vec<char> = vec![];
-
-        let line_len = tmp_line.len() - 1;
-
-        for ind in 0..line_len {
-            let _t: Option<(String, String)> = check_starts_with_number(tmp_line.clone());
-            if _t.is_some() {
-                number_lst.push(_t.unwrap().1.chars().next().unwrap());
-                tmp_line.remove(0);
-            } else {
-                let pop = tmp_line.remove(0);
-                if is_num(pop as u8) {
-                    number_lst.push(pop);
-                }
+        for c in line.chars() {
+            if c.is_digit(10) {
+                digits.push(c);
+                is_digit = true;
+            } else if c.is_alphabetic() && is_digit {
+                // If the current character is alphabetic and we were parsing a digit,
+                // it might be a spelled-out digit
+                let digit_value = match digits.as_str() {
+                    "one" => 1,
+                    "two" => 2,
+                    "three" => 3,
+                    "four" => 4,
+                    "five" => 5,
+                    "six" => 6,
+                    "seven" => 7,
+                    "eight" => 8,
+                    "nine" => 9,
+                    _ => 0, // Default to 0 if not a spelled-out digit
+                };
+                sum += digit_value;
+                digits.clear();
+                is_digit = false;
             }
         }
 
-        let numtoparse = match number_lst.len() {
-            0 => { String::from("0") }
-            _ => {
-                let one = number_lst.remove(0);
-                let mut two = number_lst.pop();
-                if two.is_none() {
-                    two = Some(one);
-                }
-                format!("{}{}", one, two.unwrap())
-            }
-        };
-
-        println!("from {:?} to {:?}", line_bkp, numtoparse);
-        let num = numtoparse.clone().parse::<i64>().unwrap();
-        numbers.push(num);
+        if is_digit {
+            // If the line ends with a digit, add its value to the sum
+            let digit_value = match digits.as_str() {
+                "one" => 1,
+                "two" => 2,
+                "three" => 3,
+                "four" => 4,
+                "five" => 5,
+                "six" => 6,
+                "seven" => 7,
+                "eight" => 8,
+                "nine" => 9,
+                _ => digits.parse::<u32>().unwrap_or(0), // Parse as a number if not a spelled-out digit
+            };
+            sum += digit_value;
+        }
     }
-    let total = numbers.iter().sum::<i64>();
-    let toolow = 55189;
 
-    println!("PART 2: Answer {:?} -> is high enough <{}> ({})", total, total > toolow, toolow);
+    println!("The sum of calibration values is: {}", sum);
+
     Ok(())
 }
 
