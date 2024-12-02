@@ -25,7 +25,7 @@ fn file_to_vec() -> std::io::Result<(Vec<i64>, Vec<i64>)> {
 }
 
 fn part_02() -> std::io::Result<()> {
-    let ( left, right): (Vec<i64>, Vec<i64>) = file_to_vec()?;
+    let (left, right): (Vec<i64>, Vec<i64>) = file_to_vec()?;
 
     let total: i64 = left.iter().map(|l| {
         let count_right = right.iter().filter(|r| r == &l).count() as i64;
@@ -47,8 +47,7 @@ fn part_01() -> std::io::Result<()> {
         .iter()
         .zip(right.iter())
         .map(|(a, b)| {
-            let res_calc = a - b;
-            res_calc.abs()
+            (a - b).abs()
         })
         .sum::<i64>();
 
