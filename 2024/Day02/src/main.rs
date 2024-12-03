@@ -34,24 +34,27 @@ fn part_02(data: &Vec<Vec<i64>>) -> std::io::Result<()> {
             let mut tmp = line.clone();
             tmp.reverse();
             let is_order_down = vec_is_sorted(tmp);
-            match is_order_down || is_order_up {
-                true => return 1,
-                _ => {
-                    // println!("line {} -> {:?}", index, line);
-                    for i_arr in 0..line.len() - 1 {
-                        let mut tmp_line = line.clone();
-                        tmp_line.remove(i_arr);
-                        let is_order_up = vec_is_sorted(tmp_line.clone());
-                        let mut tmp = tmp_line.clone();
-                        tmp.reverse();
-                        let is_order_down = vec_is_sorted(tmp);
-                        if is_order_down || is_order_up {
-                            return 1;
-                        }
-                    }
-                    return 0;
+
+            if is_order_up || is_order_down {
+                return 1;
+            }
+
+            // Unsafe, so test each versions on current vec
+            for i_arr in 0..line.len() {
+                let mut tmp_line = line.clone();
+                tmp_line.remove(i_arr);
+
+                let is_order_up = vec_is_sorted(tmp_line.clone());
+                let mut tmp = tmp_line.clone();
+                tmp.reverse();
+                let is_order_down = vec_is_sorted(tmp);
+
+                if is_order_up || is_order_down {
+                    return 1;
                 }
             }
+
+            0
         })
         .sum();
     println!("Part 02: {}", total_safe);
