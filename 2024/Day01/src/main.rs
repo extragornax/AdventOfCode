@@ -1,11 +1,7 @@
-use std::fs::File;
-use std::io::{BufReader, Read};
+use aoc_tools::read_file_to_string;
 
 fn file_to_vec() -> std::io::Result<(Vec<i64>, Vec<i64>)> {
-    let file = File::open("input.txt")?;
-    let mut buf_reader = BufReader::new(file);
-    let mut contents = String::new();
-    buf_reader.read_to_string(&mut contents)?;
+    let contents = read_file_to_string()?;
 
     let (left, right): (Vec<i64>, Vec<i64>) = contents
         .split("\n")
@@ -27,10 +23,13 @@ fn file_to_vec() -> std::io::Result<(Vec<i64>, Vec<i64>)> {
 fn part_02() -> std::io::Result<()> {
     let (left, right): (Vec<i64>, Vec<i64>) = file_to_vec()?;
 
-    let total: i64 = left.iter().map(|l| {
-        let count_right = right.iter().filter(|r| r == &l).count() as i64;
-        l * count_right
-    }).sum();
+    let total: i64 = left
+        .iter()
+        .map(|l| {
+            let count_right = right.iter().filter(|r| r == &l).count() as i64;
+            l * count_right
+        })
+        .sum();
 
     println!("Part 02: {}", total);
 
@@ -46,9 +45,7 @@ fn part_01() -> std::io::Result<()> {
     let total = left
         .iter()
         .zip(right.iter())
-        .map(|(a, b)| {
-            (a - b).abs()
-        })
+        .map(|(a, b)| (a - b).abs())
         .sum::<i64>();
 
     println!("Part 01: {}", total);

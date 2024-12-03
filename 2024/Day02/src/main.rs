@@ -1,5 +1,4 @@
-use std::fs::File;
-use std::io::{BufReader, Read};
+use aoc_tools::read_file_to_string;
 
 fn vec_is_sorted(vec: Vec<i64>) -> bool {
     vec.iter().zip(vec.iter().skip(1)).all(|(a, b)| {
@@ -9,10 +8,7 @@ fn vec_is_sorted(vec: Vec<i64>) -> bool {
 }
 
 fn file_to_vec() -> std::io::Result<Vec<Vec<i64>>> {
-    let file = File::open("input.txt")?;
-    let mut buf_reader = BufReader::new(file);
-    let mut contents = String::new();
-    buf_reader.read_to_string(&mut contents)?;
+    let contents = read_file_to_string()?;
 
     let data: Vec<Vec<i64>> = contents
         .split("\n")

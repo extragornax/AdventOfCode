@@ -1,21 +1,8 @@
 use regex::Regex;
-use std::fs::File;
-use std::io::{BufReader, Read};
-
-fn read_file_to_string() -> Result<String, std::io::Error> {
-    let file = File::open("input.txt")?;
-    let mut buf_reader = BufReader::new(file);
-    let mut contents = String::new();
-    buf_reader.read_to_string(&mut contents)?;
-
-    Ok(contents)
-}
+use aoc_tools::read_file_to_string;
 
 fn step_02() -> std::io::Result<()> {
-    let file = File::open("input.txt")?;
-    let mut buf_reader = BufReader::new(file);
-    let mut contents = String::new();
-    buf_reader.read_to_string(&mut contents)?;
+    let contents = read_file_to_string()?;
 
     // Regex patterns for `mul`, `do`, and `don't` instructions
     let re_instruction = Regex::new(r"mul\((\d+),(\d+)\)|do\(\)|don't\(\)").unwrap();
@@ -52,10 +39,7 @@ fn step_02() -> std::io::Result<()> {
 }
 
 fn step_01() -> std::io::Result<()> {
-    let file = File::open("input.txt")?;
-    let mut buf_reader = BufReader::new(file);
-    let mut contents = String::new();
-    buf_reader.read_to_string(&mut contents)?;
+    let contents = read_file_to_string()?;
 
     // Regex pattern to match valid `mul(X,Y)` instructions.
     let re = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
