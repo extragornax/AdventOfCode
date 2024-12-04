@@ -1,69 +1,75 @@
-use std::io::{BufRead};
 use aoc_tools::read_file_to_string;
 
-fn is_valid_arm(rows: usize, cols: usize, x: usize, y: usize, dx: isize, dy: isize, grid: &Vec<Vec<char>>) -> bool {
-    let nx = x as isize + dx;
-    let ny = y as isize + dy;
-    let fx = x as isize + 2 * dx;
-    let fy = y as isize + 2 * dy;
-
-    if nx >= 0 && ny >= 0 && fx >= 0 && fy >= 0 &&
-        (nx as usize) < rows && (ny as usize) < cols &&
-        (fx as usize) < rows && (fy as usize) < cols
-    {
-        // "M.A.S" or "S.A.M"
-        let middle = grid[nx as usize][ny as usize];
-        let far = grid[fx as usize][fy as usize];
-        (grid[x][y] == 'M' && middle == 'A' && far == 'S') ||
-            (grid[x][y] == 'S' && middle == 'A' && far == 'M')
-    } else {
-        false
+fn is_valid_double_mas(
+    row: i64,
+    col: i64,
+    row_len: i64,
+    col_len: i64,
+    grid: &Vec<Vec<char>>,
+) -> bool {
+    if row + 1 >= row_len {
+        return false;
     }
-}
+    if col + 1 >= col_len {
+        return false;
+    }
 
-fn step_02() -> std::io::Result<()> {
-    let content = read_file_to_string()?; // Read the input file
+    let (up_l_x, up_l_y) = (row - 1, col - 1);
+    let (down_r_x, down_r_y) = (row + 1, col + 1);
 
-    let grid: Vec<Vec<char>> = content
-        .lines()
-        .map(|line| line.chars().collect())
-        .collect();
+    let (up_r_x, up_r_y) = (row - 1, col + 1);
+    let (down_l_x, down_l_y) = (row + 1, col - 1);
 
-    let rows = grid.len();
-    let cols = grid[0].len();
-    let mut count = 0;
+    let mut found = false;
+    if (0 <= up_l_x && up_l_x < row_len - 1)
+        && (0 <= up_r_x && up_r_x < row_len - 1)
+        && (0 <= down_l_y && down_l_y < col_len - 1)
+        && (0 <= up_l_y && up_l_y < col_len - 1)
+    {
+        if (grid[up_l_x as usize][up_l_y as usize] == 'M'
+            && grid[down_r_x as usize][down_r_y as usize] == 'S')
+            || (grid[up_l_x as usize][up_l_y as usize] == 'S'
+                && grid[down_r_x as usize][down_r_y as usize] == 'M')
+        {
+            if found {
+                return true;
+            }
+            found = true;
+        }
 
-    // Iterate over the grid to find X-MAS patterns
-    for i in 0..rows {
-        for j in 0..cols {
-            if grid[i][j] == 'A' {
-                // Define diagonal directions for the arms
-                let deltas = [
-                    (-1, -1), // Top-left
-                    (-1, 1),  // Top-right
-                    (1, -1),  // Bottom-left
-                    (1, 1),   // Bottom-right
-                ];
-
-                for k in 0..4 {
-                    // Each "X" requires two distinct diagonals
-                    let (dx1, dy1) = deltas[k];
-                    let (dx2, dy2) = deltas[(k + 2) % 4]; // Opposite diagonal
-
-                    // Check both diagonals to form an "X"
-                    if is_valid_arm(rows, cols, i, j, dx1, dy1, &grid) &&
-                        is_valid_arm(rows, cols, i, j, dx2, dy2, &grid)
-                    {
-                        count += 1;
-                    }
-                }
+        if (grid[up_r_x as usize][up_r_y as usize] == 'M'
+            && grid[down_l_x as usize][down_l_y as usize] == 'S')
+            || (grid[up_r_x as usize][up_r_y as usize] == 'S'
+                && grid[down_l_x as usize][down_l_y as usize] == 'M')
+        {
+            if found {
+                return true;
             }
         }
     }
+    false
+}
 
-    // Each X-MAS pattern is counted twice (once for each diagonal pairing)
-    println!("Part 02: {}", count / 2);
+fn step_02() -> std::io::Result<()> {
+    let content = read_file_to_string()?;
+    let grid: Vec<Vec<char>> = content.lines().map(|line| line.chars().collect()).collect();
 
+    let rows = grid.len() as i64;
+    let cols = grid[0].len() as i64;
+    let mut count = 0;
+
+    // Iterate over every cell in the grid
+    for row in 0..rows {
+        for col in 0..cols {
+            if grid[row as usize][col as usize] == 'A'
+                && is_valid_double_mas(row, col, rows, cols, &grid) {
+                count += 1;
+            }
+        }
+        // }
+    }
+
+    println!("Step 02: {}", count);
     Ok(())
 }
 
@@ -79,13 +85,13 @@ fn step_01() -> std::io::Result<()> {
     let mut count = 0;
 
     let directions = [
-        (0, 1),  // Right
-        (0, -1), // Left
-        (1, 0),  // Down
-        (-1, 0), // Up
-        (1, 1),  // Down-Right
-        (1, -1), // Down-Left
-        (-1, 1), // Up-Right
+        (0, 1),   // Right
+        (0, -1),  // Left
+        (1, 0),   // Down
+        (-1, 0),  // Up
+        (1, 1),   // Down-Right
+        (1, -1),  // Down-Left
+        (-1, 1),  // Up-Right
         (-1, -1), // Up-Left
     ];
 
@@ -118,7 +124,6 @@ fn step_01() -> std::io::Result<()> {
 
     Ok(())
 }
-
 
 fn main() {
     if let Err(e) = step_01() {
