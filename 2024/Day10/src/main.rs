@@ -1,12 +1,16 @@
-use std::collections::{HashMap, HashSet};
 use aoc_tools::read_file_to_string;
+use std::collections::{HashMap, HashSet};
 
 fn file_content() -> std::io::Result<Vec<Vec<u32>>> {
     let content = read_file_to_string()?;
 
     let mut final_data = Vec::<Vec<u32>>::new();
     for l in content.lines() {
-        let chars = l.trim().chars().map(|c| c.to_digit(10).unwrap() as u32).collect::<Vec<u32>>();
+        let chars = l
+            .trim()
+            .chars()
+            .map(|c| c.to_digit(10).unwrap() as u32)
+            .collect::<Vec<u32>>();
         final_data.push(chars);
     }
 
@@ -15,10 +19,18 @@ fn file_content() -> std::io::Result<Vec<Vec<u32>>> {
 
 fn find_neighbors(x: usize, y: usize, map: &Vec<Vec<u32>>) -> Vec<(usize, usize)> {
     let mut neighbors = Vec::new();
-    if x > 0 { neighbors.push((x - 1, y)); }
-    if x + 1 < map.len() { neighbors.push((x + 1, y)); }
-    if y > 0 { neighbors.push((x, y - 1)); }
-    if y + 1 < map[0].len() { neighbors.push((x, y + 1)); }
+    if x > 0 {
+        neighbors.push((x - 1, y));
+    }
+    if x + 1 < map.len() {
+        neighbors.push((x + 1, y));
+    }
+    if y > 0 {
+        neighbors.push((x, y - 1));
+    }
+    if y + 1 < map[0].len() {
+        neighbors.push((x, y + 1));
+    }
     neighbors
 }
 
@@ -66,7 +78,12 @@ fn calculate_trailhead_scores(map: &Vec<Vec<u32>>) -> usize {
     total_score
 }
 
-fn count_distinct_trails(x: usize, y: usize, map: &Vec<Vec<u32>>, memo: &mut HashMap<(usize, usize), usize>) -> usize {
+fn count_distinct_trails(
+    x: usize,
+    y: usize,
+    map: &Vec<Vec<u32>>,
+    memo: &mut HashMap<(usize, usize), usize>,
+) -> usize {
     if let Some(&cached) = memo.get(&(x, y)) {
         return cached;
     }
@@ -116,7 +133,6 @@ fn step_01() -> std::io::Result<()> {
     println!("Step 01: {}", total_score);
     Ok(())
 }
-
 
 fn main() {
     if let Err(e) = step_01() {

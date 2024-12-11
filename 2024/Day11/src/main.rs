@@ -1,51 +1,60 @@
 use aoc_tools::read_file_to_string;
+use std::collections::HashMap;
 
-fn shit_numbers(numbers: Vec<String>) -> Vec<String> {
-    let mut new_arr = Vec::new();
-    let mut index = 0;
-    while index < numbers.len() {
-        let tmp_num = numbers[index].clone();
-        if tmp_num == "0".to_string() {
-            new_arr.push("1".to_string());
-        } else if tmp_num.len() % 2 == 0 {
-            let split = tmp_num.split_at(tmp_num.len() / 2);
-            let parsed_1 = split.0.parse::<usize>().unwrap();
-            new_arr.push(parsed_1.to_string());
-            let parsed_2 = split.1.parse::<usize>().unwrap();
-            new_arr.push(parsed_2.to_string());
-        } else {
-            let parsed = tmp_num.parse::<usize>().unwrap();
-            let final_num = parsed * 2024;
-            new_arr.push(final_num.to_string());
-        }
-
-        index += 1;
+fn count_until_end(num: usize, steps_left: usize, memo: &mut HashMap<(usize, usize), usize>) -> usize {
+    if steps_left == 0 {
+        return 1;
     }
 
-    new_arr
+    if let Some(&cached) = memo.get(&(num, steps_left)) {
+        return cached;
+    }
+
+    let result = if num == 0 {
+        count_until_end(1, steps_left - 1, memo)
+    } else {
+        let num_digits = (num as f64).log10().floor() as usize + 1;
+        if num_digits % 2 == 0 {
+            let divisor = 10_usize.pow((num_digits / 2) as u32);
+            let left = num / divisor;
+            let right = num % divisor;
+            count_until_end(left, steps_left - 1, memo) + count_until_end(right, steps_left - 1, memo)
+        } else {
+            count_until_end(num * 2024, steps_left - 1, memo)
+        }
+    };
+
+    memo.insert((num, steps_left), result);
+    result
 }
 
-fn step_01() -> std::io::Result<()> {
+fn run_iters(number_steps: usize) -> std::io::Result<usize> {
     let content = read_file_to_string()?;
 
-    let mut numbers = content
-        .split(" ")
-        .map(|s| s.to_string())
-        .collect::<Vec<String>>();
+    let initial_numbers = content
+        .split_whitespace()
+        .map(|s| s.parse::<usize>().unwrap())
+        .collect::<Vec<_>>();
 
-    let runs = 25;
-    for _index in 0..runs {
-        numbers = shit_numbers(numbers);
-        // println!("{} - {:?}", _index + 1, numbers);
+    let mut memo = HashMap::new();
+    let mut total_count = 0;
+
+    for num in initial_numbers {
+        total_count += count_until_end(num, number_steps, &mut memo);
     }
 
-    println!("Part 01 : {}", numbers.len());
+    Ok(total_count)
+}
+
+fn steps() -> std::io::Result<()> {
+    println!("Part 01 : {}", run_iters(25)?);
+    println!("Part 02 : {}", run_iters(75)?);
 
     Ok(())
 }
 
 fn main() {
-    if let Err(e) = step_01() {
+    if let Err(e) = steps() {
         println!("Failed to read input: {}", e);
     }
 }
