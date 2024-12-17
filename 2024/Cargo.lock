@@ -39,6 +39,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "Day06"
+version = "0.1.0"
+dependencies = [
+ "aoc_tools",
+]
+
+[[package]]
 name = "Day10"
 version = "0.1.0"
 dependencies = [
@@ -47,6 +54,13 @@ dependencies = [
 
 [[package]]
 name = "Day11"
+version = "0.1.0"
+dependencies = [
+ "aoc_tools",
+]
+
+[[package]]
+name = "Day12"
 version = "0.1.0"
 dependencies = [
  "aoc_tools",
