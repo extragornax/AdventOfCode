@@ -68,8 +68,105 @@ fn update_move(
     grid[next_y as usize][next_x as usize] = DIRECTIONS[direction.clone() as usize];
     (grid, (next_y, next_x), direction, false)
 }
+fn find_cycle(mut grid: Vec<Vec<char>>, start_position: (i64, i64), start_direction: DirectionEn) -> bool {
+    let mut visited_states = HashSet::new();
+    let mut position = start_position;
+    let mut direction = start_direction;
+    let mut step_count = 0;
 
-fn part_01() -> std::io::Result<()> {
+    loop {
+        if !visited_states.insert((position, direction.clone())) {
+            return true; // Cycle detected
+        }
+
+        let (next_grid, next_position, next_direction, guard_left) =
+            update_move(grid.clone(), position, direction);
+
+        grid = next_grid;
+        position = next_position;
+        direction = next_direction;
+
+        if guard_left || step_count > 10_000 {
+            break; // Guard leaves or too many steps
+        }
+        step_count += 1;
+    }
+
+    false
+}
+
+fn part_02(grid: Vec<Vec<char>>) -> std::io::Result<()> {
+    let content = read_file_to_string()?;
+    let grid_clean: Vec<Vec<char>> = content.lines().map(|line| line.chars().collect()).collect();
+
+    // Find the initial position and direction of the guard
+    let ((start_y, start_x), start_direction) = grid_clean
+        .iter()
+        .enumerate()
+        .find_map(|(y, row)| {
+            row.iter().enumerate().find_map(|(x, &c)| {
+                DIRECTIONS.contains(&c).then(|| ((y as i64, x as i64), match c {
+                    '^' => DirectionEn::Up,
+                    '>' => DirectionEn::Right,
+                    'v' => DirectionEn::Down,
+                    '<' => DirectionEn::Left,
+                    _ => panic!("Unknown direction: {}", c),
+                }))
+            })
+        })
+        .expect("Guard's initial position not found");
+
+    // Split the grid into four sections
+    let height = grid.len();
+    let width = grid[0].len();
+    let quarter_height = height / 12;
+
+    let (tx, rx) = mpsc::channel();
+
+    for i in 0..12 {
+        let tx = tx.clone();
+        let subgrid_start = i * quarter_height;
+        let subgrid_end = if i == 11 { height } else { (i + 1) * quarter_height };
+        let grid_clone = grid.clone();
+        let start_position = (start_y, start_x);
+        let start_direction = start_direction.clone();
+
+        let grid_clean_clone = grid_clean.clone();
+
+        thread::spawn(move || {
+            let mut possible_positions = 0;
+
+            for y in subgrid_start..subgrid_end {
+                for x in 0..width {
+                    // Skip walls and the starting position
+                    if grid_clone[y][x] != 'X' || (y as i64 == start_position.0 && x as i64 == start_position.1) {
+                        continue;
+                    }
+
+                    // Place obstruction
+                    let mut grid_with_obstruction = grid_clean_clone.clone();
+                    grid_with_obstruction[y][x] = '#';
+                    grid_with_obstruction[start_y as usize][start_x as usize] = '^';
+
+                    // Check for a cycle
+                    if find_cycle(grid_with_obstruction, start_position, start_direction.clone()) {
+                        possible_positions += 1;
+                    }
+                }
+            }
+
+            tx.send(possible_positions).expect("Failed to send result");
+        });
+    }
+
+    drop(tx); // Close the sending side to avoid deadlock
+
+    let total_possible_positions: usize = rx.iter().sum();
+    println!("Part 02: {}", total_possible_positions);
+    Ok(())
+}
+
+fn part_01() -> std::io::Result<Vec<Vec<char>>> {
     let content = read_file_to_string()?;
     let mut grid: Vec<Vec<char>> = content.lines().map(|line| line.chars().collect()).collect();
 
@@ -102,111 +199,21 @@ fn part_01() -> std::io::Result<()> {
 
         if guard_left {
             println!("Part 01: {}", count_in_grid(&grid));
-            return Ok(());
+            return Ok(grid);
         }
     }
-}
-
-fn find_cycle(mut grid: Vec<Vec<char>>, start_position: (i64, i64), start_direction: DirectionEn) -> bool {
-    let mut visited_states = HashSet::new();
-    let mut position = start_position;
-    let mut direction = start_direction;
-    let mut step_count = 0;
-
-    loop {
-        if !visited_states.insert((position, direction.clone())) {
-            return true; // Cycle detected
-        }
-
-        let (next_grid, next_position, next_direction, guard_left) =
-            update_move(grid.clone(), position, direction);
-        grid = next_grid;
-        position = next_position;
-        direction = next_direction;
-
-        if guard_left || step_count > 10_000 {
-            break; // Guard leaves or too many steps
-        }
-        step_count += 1;
-    }
-
-    false
-}
-
-
-fn part_02() -> std::io::Result<()> {
-    let content = read_file_to_string()?;
-    let grid: Vec<Vec<char>> = content.lines().map(|line| line.chars().collect()).collect();
-
-    // Find the initial position and direction of the guard
-    let ((start_y, start_x), start_direction) = grid
-        .iter()
-        .enumerate()
-        .find_map(|(y, row)| {
-            row.iter().enumerate().find_map(|(x, &c)| {
-                DIRECTIONS.contains(&c).then(|| ((y as i64, x as i64), match c {
-                    '^' => DirectionEn::Up,
-                    '>' => DirectionEn::Right,
-                    'v' => DirectionEn::Down,
-                    '<' => DirectionEn::Left,
-                    _ => panic!("Unknown direction: {}", c),
-                }))
-            })
-        })
-        .expect("Guard's initial position not found");
-
-    // Split the grid into four sections
-    let height = grid.len();
-    let width = grid[0].len();
-    let quarter_height = height / 12;
-
-    let (tx, rx) = mpsc::channel();
-
-    for i in 0..12 {
-        let tx = tx.clone();
-        let subgrid_start = i * quarter_height;
-        let subgrid_end = if i == 11 { height } else { (i + 1) * quarter_height };
-        let grid_clone = grid.clone();
-        let start_position = (start_y, start_x);
-        let start_direction = start_direction.clone();
-
-        thread::spawn(move || {
-            let mut possible_positions = 0;
-
-            for y in subgrid_start..subgrid_end {
-                for x in 0..width {
-                    // Skip walls and the starting position
-                    if grid_clone[y][x] != '.' || (y as i64 == start_position.0 && x as i64 == start_position.1) {
-                        continue;
-                    }
-
-                    // Place obstruction
-                    let mut grid_with_obstruction = grid_clone.clone();
-                    grid_with_obstruction[y][x] = '#';
-
-                    // Check for a cycle
-                    if find_cycle(grid_with_obstruction, start_position, start_direction.clone()) {
-                        possible_positions += 1;
-                    }
-                }
-            }
-
-            tx.send(possible_positions).expect("Failed to send result");
-        });
-    }
-
-    drop(tx); // Close the sending side to avoid deadlock
-
-    let total_possible_positions: usize = rx.iter().sum();
-    println!("Part 02: {}", total_possible_positions);
-    Ok(())
 }
 
 fn main() {
-    if let Err(e) = part_01() {
+    let p_1 = part_01();
+    if let Err(e) = p_1 {
         println!("Error in Part 01: {}", e);
+
+    } else {
+        let grid = p_1.unwrap();
+        if let Err(e) = part_02(grid) {
+            println!("Error in Part 02: {}", e);
+        }
     }
-    if let Err(e) = part_02() {
-        println!("Error in Part 02: {}", e);
-    }
+
 }
